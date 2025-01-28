@@ -2,25 +2,30 @@ using UnityEngine;
 
 public class GetWeapon : MonoBehaviour
 {
+    private Gun _weapon;
+    public Gun Weapon
+    {
+        get { return _weapon;}
+    }
 
+    [SerializeField]
+
+    private Transform _gunPivot;
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Weapon"))
+        if (other.CompareTag("Weapon") && _weapon == null)
         {
-            other.gameObject.SetActive(false);
+            GrabWeapon(other.transform);
         }
     }
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void GrabWeapon(Transform weapon)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        weapon.GetComponent<Rotate>().IsRotating = false;
+        weapon.GetComponent<BoxCollider>().enabled = false;
+        weapon.SetParent(_gunPivot);
+        weapon.localPosition = Vector3.zero;
+        weapon.localRotation = Quaternion.identity;
+        _weapon = weapon.GetComponent<Gun>();
     }
 }
