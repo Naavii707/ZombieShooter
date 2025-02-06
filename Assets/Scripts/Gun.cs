@@ -23,34 +23,55 @@ public class Gun : MonoBehaviour
     private int _currentBulletsNumber = 0;
 
     private Text _bulletText;
+
+    private GetWeapon _getWeapon;
+
     public void Shoot()
     {
+        if(_currentBulletsNumber == 0)
+        {
+            if (_totalBulletsNumber == 0)
+            {
+                RemoveWeapon();
+            }
+            return;
+        }
         GameObject.Instantiate(_bullet, _bulletPivot.position,  _bulletPivot.rotation);
         _weaponAnimator.Play("Shoot", -1, 0f);
         _currentBulletsNumber --;
         UpdateBulletsText();
     }
 
-    public void PickUpWeapon()
+    public void PickUpWeapon(GetWeapon getWeapon)
     {
+        _getWeapon = getWeapon;
         _totalBulletsNumber = _maxBulletsNumber;
-        _currentBulletsNumber = _cartridgeBulletsNumber;
+        Reload();
         _weaponAnimator.Play("GetWeapon");
+        UpdateBulletsText();
     }
 
     public void Reload()
     {
-        if (_totalBulletsNumber >= _cartridgeBulletsNumber)
-        {
-            _currentBulletsNumber = _cartridgeBulletsNumber;
-        }
+        if(_currentBulletsNumber == _cartridgeBulletsNumber || _totalBulletsNumber == 0)
+       {
+         return;
+       }
 
-        else if (_totalBulletsNumber > 0)
-        {
-            _currentBulletsNumber = _totalBulletsNumber;
-        }
+       int bulletNeeded = _cartridgeBulletsNumber - _currentBulletsNumber;
 
+       if(_totalBulletsNumber >= _cartridgeBulletsNumber)
+       {
+        _currentBulletsNumber = bulletNeeded;
+       }
+
+       else if(_totalBulletsNumber > 0)
+       {
+        _currentBulletsNumber = _totalBulletsNumber;
+       }
+ 
         _totalBulletsNumber -= _currentBulletsNumber;
+        _weaponAnimator.Play("Reload", -1, 0f);
         UpdateBulletsText();
 
     }
@@ -59,10 +80,16 @@ public class Gun : MonoBehaviour
     {
         if (_bulletText == null)
         {
-            _bulletText = GameObject.Find("BulletText").GetComponent<Text>();
+            _bulletText = _getWeapon.GetComponent<ControllerUI>().BulletsText;
         }
 
         _bulletText.text = _currentBulletsNumber + "/" + _totalBulletsNumber;
 
+    }
+
+    private void RemoveWeapon()
+    {
+        _getWeapon.RemoveWeapon();
+        _getWeapon = null;
     }
 }
